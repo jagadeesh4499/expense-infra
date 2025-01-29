@@ -1,0 +1,51 @@
+pipeline {
+    agent {
+        label 'AGENT-1'
+    }
+    options {
+        timeout(time: 30, unit: 'MINUTES') // This pipeline must take only 30 min to complete or else the pipeline will be failed if it exeeds more than 30 min.
+        disableConcurrentBuilds() // It won't allow two parallel builds at a time.
+        ansiColor('xterm')
+    }
+    // environment {
+    //     DEBUG = 'true'
+    //     appVersion = '' // This is global variable, we can use this across pipeline in any stage
+    // }
+    parameters {
+        choice(name: 'ACTION', choices: ['Apply', 'Destroy'], description: 'Select Action')
+    }
+    stages {
+        stage('Init and Plan') {
+            steps {
+                withAWS(region: 'us-east-1', credentials: 'aws-creds'){
+                    sh """
+                        cd 10-sg
+                        terraform init -reconfigure
+                        terraform plan -out=tfplan 
+                    """
+                        // -out means what we are planing that only going to apply
+                }
+            }
+        }
+        stage('Apply or Destroy') {
+            input {
+                message "Shall we Continue to ${params.ACTION}"
+                ok "Yes, We should."
+            }
+            steps {
+                withAWS(region: 'us-east-1', credentials: 'aws-creds'){
+                    sh """
+                        cd 10-sg
+                        if [ ${params.ACTION} == 'Apply']
+                        then 
+                            terraform apply -auto-approve tfplan
+                        elif [${params.ACTION} == 'Destroy']
+                        then
+                            terraform destroy -auto-approve tfplan
+                        fi
+                    """
+                }
+            }
+        }
+    }
+}
