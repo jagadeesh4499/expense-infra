@@ -1,0 +1,44 @@
+pipeline {
+    agent {
+        label 'AGENT-1'
+    }
+    options {
+        timeout(time: 30, unit: 'MINUTES') // This pipeline must take only 30 min to complete or else the pipeline will be failed if it exeeds more than 30 min.
+        disableConcurrentBuilds() // It won't allow two parallel builds at a time.
+    }
+    // environment {
+    //     DEBUG = 'true'
+    //     appVersion = '' // This is global variable, we can use this across pipeline in any stage
+    // }
+    parameters {
+        choice(name: 'ACTION', choices: ['Apply', 'Destroy'], description: 'Select Action')
+    }
+    stages {
+        stage('init') {
+            steps {
+                sh 'cd 00-vpc'
+                sh "terraform init -reconfigure"
+            }
+        }
+        stage('Plan') {
+            steps {
+                withAWS(region: 'us-east-1', credentials: 'aws-creds'){
+                    sh 'cd 00-vpc'
+                    sh 'terraform plan -out=tfplan' // -out means what we are planing that only going to apply
+                }
+            }
+        }
+    }
+    // post {
+    //     always {
+    //         echo "This section runs always"
+    //         deleteDir() // Used to delete previous builds to reduce memory usage
+    //     }
+    //     success {
+    //         echo "This section runs when pipeline is success"
+    //     }
+    //     failure {
+    //         echo "This section runs when pipeline is failure"
+    //     }
+    // }
+}
