@@ -5,6 +5,7 @@ pipeline {
     options {
         timeout(time: 30, unit: 'MINUTES') // This pipeline must take only 30 min to complete or else the pipeline will be failed if it exeeds more than 30 min.
         disableConcurrentBuilds() // It won't allow two parallel builds at a time.
+        ansiColor('xterm')
     }
     // environment {
     //     DEBUG = 'true'
