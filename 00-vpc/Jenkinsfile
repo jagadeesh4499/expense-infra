@@ -15,33 +15,17 @@ pipeline {
         choice(name: 'ACTION', choices: ['Apply', 'Destroy'], description: 'Select Action')
     }
     stages {
-        stage('init') {
-            steps {
-                sh """
-                cd 00-vpc
-                terraform init -reconfigure
-                """
-            }
-        }
-        stage('Plan') {
+        stage('init and plan') {
             steps {
                 withAWS(region: 'us-east-1', credentials: 'aws-creds'){
-                    sh 'cd 00-vpc'
-                    sh 'terraform plan -out=tfplan' // -out means what we are planing that only going to apply
+                    sh """
+                        cd 00-vpc
+                        terraform init -reconfigure
+                        terraform plan -out=tfplan 
+                    """
+                        // -out means what we are planing that only going to apply
                 }
             }
         }
     }
-    // post {
-    //     always {
-    //         echo "This section runs always"
-    //         deleteDir() // Used to delete previous builds to reduce memory usage
-    //     }
-    //     success {
-    //         echo "This section runs when pipeline is success"
-    //     }
-    //     failure {
-    //         echo "This section runs when pipeline is failure"
-    //     }
-    // }
 }
