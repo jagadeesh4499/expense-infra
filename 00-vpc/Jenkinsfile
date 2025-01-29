@@ -15,7 +15,7 @@ pipeline {
         choice(name: 'ACTION', choices: ['Apply', 'Destroy'], description: 'Select Action')
     }
     stages {
-        stage('init and plan') {
+        stage('Init and Plan') {
             steps {
                 withAWS(region: 'us-east-1', credentials: 'aws-creds'){
                     sh """
@@ -24,6 +24,26 @@ pipeline {
                         terraform plan -out=tfplan 
                     """
                         // -out means what we are planing that only going to apply
+                }
+            }
+        }
+        stage('Apply or Destroy') {
+            input {
+                message "Shall we Continue to ${params.ACTION}"
+                ok "Yes, We should."
+            }
+            steps {
+                withAWS(region: 'us-east-1', credentials: 'aws-creds'){
+                    sh """
+                        cd 00-vpc
+                        if [ ${params.ACTION} == 'Apply']
+                        then 
+                            terraform apply -auto-approve tfplan
+                        elif [${params.ACTION} == 'Destroy']
+                        then
+                            terraform destroy -auto-approve tfplan
+                        fi
+                    """
                 }
             }
         }
