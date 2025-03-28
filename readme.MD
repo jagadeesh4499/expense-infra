@@ -1,6 +1,6 @@
 # Expense DEV Infrastructure
 
-![alt text](image.png)
+![alt text](https://raw.githubusercontent.com/daws-81s/expense-infra/f3a81a48fb5b538d89b8bd5edf5e656e86a194ea/expense-infra.svg
 
 * Make sure infra is created. 
 * Every resource should have dev in its name, so that it will not overlap with prod resources.
