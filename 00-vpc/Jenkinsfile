@@ -28,10 +28,10 @@ pipeline {
             }
         }
         stage('Apply or Destroy') {
-            input {
-                message "Shall we Continue to ${params.ACTION}"
-                ok "Yes, We should."
-            }
+            // input {
+            //     message "Shall we Continue to ${params.ACTION}"
+            //     ok "Yes, We should."
+            // }
             steps {
                 withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """
