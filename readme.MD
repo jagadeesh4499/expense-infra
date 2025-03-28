@@ -117,4 +117,3 @@ eks-pod-identity-agent-cj98g                    1/1     Running   0          5m1
 kube-proxy-7sgw7                                1/1     Running   0          6m4s
 kube-proxy-8zb7z                                1/1     Running   0          6m5s
 ```
-
